@@ -4,8 +4,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import qutpuzzle.messages.FetchScoreboardRequest;
 import qutpuzzle.messages.FetchScoreboardResponse;
-import qutpuzzle.messages.PlaceTrophyRequest;
-import qutpuzzle.messages.PlaceTrophyResponse;
+import qutpuzzle.messages.StoreScoreRequest;
+import qutpuzzle.messages.StoreScoreResponse;
 
 public class RestActions
 {
@@ -68,10 +68,10 @@ public class RestActions
 		return response;
 	}
 
-	public static PlaceTrophyResponse placeTrophy(PlaceTrophyRequest request, HttpServletRequest httpServletRequest,
+	public static StoreScoreResponse storeScore(StoreScoreRequest request, HttpServletRequest httpServletRequest,
 			HttpServletResponse httpServletResponse)
 	{
-		PlaceTrophyResponse response = new PlaceTrophyResponse();
+		StoreScoreResponse response = new StoreScoreResponse();
 
 		response.errorCode = 0;
 		return response;

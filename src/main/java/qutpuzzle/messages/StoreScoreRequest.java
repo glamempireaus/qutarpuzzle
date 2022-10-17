@@ -1,6 +1,6 @@
 package qutpuzzle.messages;
 
-public class PlaceTrophyRequest
+public class StoreScoreRequest
 {
 	public String deviceId;
 	public String displayName;

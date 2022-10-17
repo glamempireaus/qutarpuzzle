@@ -11,8 +11,8 @@ import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import qutpuzzle.messages.FetchScoreboardRequest;
 import qutpuzzle.messages.FetchScoreboardResponse;
-import qutpuzzle.messages.PlaceTrophyRequest;
-import qutpuzzle.messages.PlaceTrophyResponse;
+import qutpuzzle.messages.StoreScoreRequest;
+import qutpuzzle.messages.StoreScoreResponse;
 
 @Path("/")
 public class RestControllers
@@ -34,12 +34,12 @@ public class RestControllers
 	}
 
 	@POST
-	@Path("/loginUser")
+	@Path("/storeScore")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public PlaceTrophyResponse placeTrophyUser(PlaceTrophyRequest request)
+	public StoreScoreResponse storeScore(StoreScoreRequest request)
 	{
-		return RestActions.placeTrophy(request, httpServletRequest, httpServletResponse);
+		return RestActions.storeScore(request, httpServletRequest, httpServletResponse);
 	}
 
 }

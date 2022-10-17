@@ -1,6 +1,6 @@
 package qutpuzzle.messages;
 
-public class PlaceTrophyResponse
+public class StoreScoreResponse
 {
 	public int errorCode;
 }
