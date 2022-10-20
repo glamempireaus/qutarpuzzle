@@ -9,6 +9,10 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
+import qutpuzzle.messages.AddTrophyRequest;
+import qutpuzzle.messages.AddTrophyResponse;
+import qutpuzzle.messages.AddUserRequest;
+import qutpuzzle.messages.AddUserResponse;
 import qutpuzzle.messages.FetchScoreboardRequest;
 import qutpuzzle.messages.FetchScoreboardResponse;
 import qutpuzzle.messages.StoreScoreRequest;
@@ -25,12 +29,12 @@ public class RestControllers
 	HttpServletResponse httpServletResponse;
 
 	@POST
-	@Path("/fetchScoreboard")
+	@Path("/addUser")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public FetchScoreboardResponse fetchScoreboard(FetchScoreboardRequest request)
+	public AddUserResponse addUser(AddUserRequest request)
 	{
-		return RestActions.fetchScoreboard(request, httpServletRequest, httpServletResponse);
+		return RestActions.addUser(request, httpServletRequest, httpServletResponse);
 	}
 
 	@POST
@@ -42,4 +46,21 @@ public class RestControllers
 		return RestActions.storeScore(request, httpServletRequest, httpServletResponse);
 	}
 
+	@POST
+	@Path("/addTrophy")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public AddTrophyResponse addTrophy(AddTrophyRequest request)
+	{
+		return RestActions.addTrophy(request, httpServletRequest, httpServletResponse);
+	}
+
+	@POST
+	@Path("/fetchScoreboard")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public FetchScoreboardResponse fetchScoreboard(FetchScoreboardRequest request)
+	{
+		return RestActions.fetchScoreboard(request, httpServletRequest, httpServletResponse);
+	}
 }

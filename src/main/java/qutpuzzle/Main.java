@@ -11,6 +11,9 @@ public class Main
 	@PostConstruct
 	public void main()
 	{
-		System.out.println("Starting server - QUT AR Puzzle");
+		System.out.println("Starting QUT AR Puzzle server");
+
+		Database.init();
+
 	}
 }

@@ -1,6 +1,7 @@
 package qutpuzzle.messages;
 
-public class FetchUserMatchesRequest
+public class AddUserRequest
 {
 	public String deviceId;
+	public String displayName;
 }
