@@ -45,6 +45,239 @@ public class RestActions
 		return true;
 	}
 
+	public static AddUserResponse addUser(AddUserRequest request, HttpServletRequest httpServletRequest,
+			HttpServletResponse httpServletResponse)
+	{
+		AddUserResponse response = new AddUserResponse();
+
+		// deviceId check
+
+		if (request.deviceId.isEmpty() || request.deviceId == null)
+		{
+			response.errorCode = 1;
+			response.errorMsg = "Your deviceID is invalid.";
+			return response;
+		}
+
+		if (request.deviceId.length() > 256)
+		{
+			response.errorCode = 2;
+			response.errorMsg = "Your deviceID is an invalid length.";
+			return response;
+		}
+
+		String processedDeviceId = request.deviceId;
+
+		if (request.deviceId.length() > 256)
+		{
+			processedDeviceId = request.deviceId.substring(0, 256);
+		}
+
+		// displayName check
+
+		if (request.displayName.isEmpty() || request.displayName == null)
+		{
+			response.errorCode = 3;
+			response.errorMsg = "This display name is an invalid.";
+			return response;
+		}
+
+		String processedDisplayName = Sanitize.aliasName(request.displayName);
+
+		// check for duplicate deviceId
+
+		if (queryDeviceId(processedDeviceId))
+		{
+			response.errorCode = 4;
+			response.errorMsg = "This display name is already in use.";
+			return response;
+		}
+
+		// add user
+
+		try
+		{
+			String query = "INSERT INTO users (deviceid, displayname) VALUES (?, ?)";
+
+			PreparedStatement statement = Database.connection.prepareStatement(query);
+			statement.setString(1, processedDeviceId);
+			statement.setString(2, processedDisplayName);
+
+			int queryResult = statement.executeUpdate();
+			if (queryResult != 1)
+			{
+				response.errorCode = 100;
+				response.errorMsg = "There was a problem with our backend.";
+				return response;
+			}
+
+		} catch (SQLException e)
+		{
+			e.printStackTrace();
+
+			response.errorCode = 100;
+			response.errorMsg = "There was a problem with our backend.";
+			return response;
+		}
+
+		response.errorCode = 0;
+		return response;
+	}
+
+	public static StoreScoreResponse storeScore(StoreScoreRequest request, HttpServletRequest httpServletRequest,
+			HttpServletResponse httpServletResponse)
+	{
+		StoreScoreResponse response = new StoreScoreResponse();
+
+		// deviceId check
+
+		if (request.deviceId.isEmpty() || request.deviceId == null)
+		{
+			response.errorCode = 1;
+			response.errorMsg = "Your deviceID is invalid.";
+			return response;
+		}
+
+		String processedDeviceId = request.deviceId;
+
+		if (request.deviceId.length() > 256)
+		{
+			processedDeviceId = request.deviceId.substring(0, 256);
+		}
+
+		// timeFinished check
+
+		if (request.timeFinished == 0)
+		{
+			response.errorCode = 4;
+			response.errorMsg = "The time finished is invalid.";
+		}
+
+		Time timeFinished = new java.sql.Time(request.timeFinished);
+
+		Time maximumTime = new java.sql.Time(21600000); // 6 hours
+		if (timeFinished.after(maximumTime))
+		{
+			response.errorCode = 5;
+			response.errorMsg = "This time is longer than 6 hours.";
+			return response;
+		}
+
+		// check if deviceId is registered (to prevent anonymous api usage)
+
+		if (!queryDeviceId(processedDeviceId))
+		{
+			response.errorCode = 10;
+			response.errorMsg = "The deviceId is not registered.";
+			return response;
+		}
+
+		// create insert query
+
+		try
+		{
+			String query = "UPDATE users SET timefinished = ? WHERE deviceid = ?";
+
+			PreparedStatement statement = Database.connection.prepareStatement(query);
+			statement.setTime(1, new java.sql.Time(request.timeFinished));
+			statement.setString(2, processedDeviceId);
+
+			int queryResult = statement.executeUpdate();
+			if (queryResult != 1)
+			{
+				response.errorCode = 100;
+				response.errorMsg = "There was a problem with our backend.";
+				return response;
+			}
+
+		} catch (SQLException e)
+		{
+			e.printStackTrace();
+
+			response.errorCode = 100;
+			response.errorMsg = "There was a problem with our backend.";
+			return response;
+		}
+
+		response.errorCode = 0;
+		return response;
+	}
+
+	public static AddTrophyResponse addTrophy(AddTrophyRequest request, HttpServletRequest httpServletRequest,
+			HttpServletResponse httpServletResponse)
+	{
+		AddTrophyResponse response = new AddTrophyResponse();
+
+		// deviceId check
+
+		if (request.deviceId.isEmpty() || request.deviceId == null)
+		{
+			response.errorCode = 1;
+			response.errorMsg = "Your deviceID is invalid.";
+			return response;
+		}
+
+		String processedDeviceId = request.deviceId;
+
+		if (request.deviceId.length() > 256)
+		{
+			processedDeviceId = request.deviceId.substring(0, 256);
+		}
+
+		// trophyType check
+
+		if (request.trophyType > 5)
+		{
+			response.errorCode = 3;
+			response.errorMsg = "Trophy type is invalid.";
+			return response;
+		}
+
+		// check if deviceId is registered (to prevent anonymous api usage)
+
+		if (!queryDeviceId(processedDeviceId))
+		{
+			response.errorCode = 10;
+			response.errorMsg = "The device is already registered.";
+			return response;
+		}
+
+		// check if there's a finished time
+
+		// add user
+
+		try
+		{
+			String query = "UPDATE users SET trophyposx = ?, trophyposy = ?, trophyposz = ?, trophytype = ? WHERE deviceid = ? AND timefinished IS NOT NULL";
+
+			PreparedStatement statement = Database.connection.prepareStatement(query);
+			statement.setDouble(1, request.trophyPosX);
+			statement.setDouble(2, request.trophyPosY);
+			statement.setDouble(3, request.trophyPosZ);
+			statement.setInt(4, request.trophyType);
+			statement.setString(5, processedDeviceId);
+
+			int queryResult = statement.executeUpdate();
+			if (queryResult != 1)
+			{
+				response.errorCode = 100;
+				response.errorMsg = "There was a problem with our backend.";
+				return response;
+			}
+
+		} catch (SQLException e)
+		{
+			e.printStackTrace();
+
+			response.errorCode = 100;
+			response.errorMsg = "There was a problem with our backend.";
+			return response;
+		}
+
+		response.errorCode = 0;
+		return response;
+	}
+
 	public static FetchScoreboardResponse fetchScoreboard(FetchScoreboardRequest request,
 			HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse)
 	{
@@ -64,9 +297,16 @@ public class RestActions
 			return response;
 		}
 
+		String processedDeviceId = request.deviceId;
+
+		if (request.deviceId.length() > 256)
+		{
+			processedDeviceId = request.deviceId.substring(0, 256);
+		}
+
 		// check if deviceId is registered (to prevent anonymous api usage)
 
-		if (!queryDeviceId(request.deviceId))
+		if (!queryDeviceId(processedDeviceId))
 		{
 			response.errorCode = 10;
 			return response;
@@ -81,6 +321,7 @@ public class RestActions
 
 			ResultSet resultSet = statement.executeQuery();
 
+			int placementIndex = 1;
 			if (!resultSet.next())
 			{
 				response.errorCode = 3;
@@ -91,10 +332,10 @@ public class RestActions
 				{
 					UserScore userScore = new UserScore();
 					userScore.displayName = resultSet.getString(1);
-					userScore.timeFinished = resultSet.getString(2);
-
+					userScore.placement = placementIndex;
+					placementIndex++;
+					userScore.timeFinished = resultSet.getInt(2);
 					response.scores.add(userScore);
-
 				} while (resultSet.next());
 			}
 
@@ -109,183 +350,6 @@ public class RestActions
 		System.out.println(response.errorCode);
 
 		// authenticate user
-
-		response.errorCode = 0;
-		return response;
-	}
-
-	public static StoreScoreResponse storeScore(StoreScoreRequest request, HttpServletRequest httpServletRequest,
-			HttpServletResponse httpServletResponse)
-	{
-		StoreScoreResponse response = new StoreScoreResponse();
-
-		// deviceId check
-
-		if (request.deviceId.isEmpty() || request.deviceId == null)
-		{
-			response.errorCode = 1;
-			return response;
-		}
-
-		if (request.deviceId.length() > 256)
-		{
-			response.errorCode = 2;
-			return response;
-		}
-
-		// timeFinished check
-
-		if (request.timeFinished == 0)
-		{
-			response.errorCode = 4;
-		}
-
-		Time timeFinished = new java.sql.Time(request.timeFinished);
-
-		Time maximumTime = new java.sql.Time(21600000); // 6 hours
-		if (timeFinished.after(maximumTime))
-		{
-			response.errorCode = 5;
-			return response;
-		}
-
-		// check if deviceId is registered (to prevent anonymous api usage)
-
-		if (!queryDeviceId(request.deviceId))
-		{
-			response.errorCode = 10;
-			return response;
-		}
-
-		// create insert query
-
-		try
-		{
-			String query = "UPDATE users SET timefinished = ? WHERE deviceid = ?";
-
-			PreparedStatement statement = Database.connection.prepareStatement(query);
-			statement.setTime(1, new java.sql.Time(request.timeFinished));
-			statement.setString(2, request.deviceId);
-
-			int queryResult = statement.executeUpdate();
-			if (queryResult != 1)
-			{
-				response.errorCode = 100;
-				return response;
-			}
-
-		} catch (SQLException e)
-		{
-			e.printStackTrace();
-
-			response.errorCode = 100;
-			return response;
-		}
-
-		response.errorCode = 0;
-		return response;
-	}
-
-	public static AddTrophyResponse addTrophy(AddTrophyRequest request, HttpServletRequest httpServletRequest,
-			HttpServletResponse httpServletResponse)
-	{
-		AddTrophyResponse response = new AddTrophyResponse();
-
-		// deviceId check
-
-		if (request.deviceId.isEmpty() || request.deviceId == null)
-		{
-			response.errorCode = 1;
-			return response;
-		}
-
-		if (request.deviceId.length() > 256)
-		{
-			response.errorCode = 2;
-			return response;
-		}
-
-		// trophyType check
-
-		if (request.trophyType > 5)
-		{
-			response.errorCode = 3;
-			return response;
-		}
-
-		// check if deviceId is registered (to prevent anonymous api usage)
-
-		if (!queryDeviceId(request.deviceId))
-		{
-			response.errorCode = 10;
-			return response;
-		}
-
-		response.errorCode = 0;
-		return response;
-	}
-
-	public static AddUserResponse addUser(AddUserRequest request, HttpServletRequest httpServletRequest,
-			HttpServletResponse httpServletResponse)
-	{
-		AddUserResponse response = new AddUserResponse();
-
-		// deviceId check
-
-		if (request.deviceId.isEmpty() || request.deviceId == null)
-		{
-			response.errorCode = 1;
-			return response;
-		}
-
-		if (request.deviceId.length() > 256)
-		{
-			response.errorCode = 2;
-			return response;
-		}
-
-		// displayName check
-
-		if (request.displayName.isEmpty() || request.displayName == null)
-		{
-			response.errorCode = 3;
-			return response;
-		}
-
-		String processedDisplayName = Sanitize.aliasName(request.displayName);
-
-		// check for duplicate deviceId
-
-		if (queryDeviceId(request.deviceId))
-		{
-			response.errorCode = 4;
-			return response;
-		}
-
-		// add user
-
-		try
-		{
-			String query = "INSERT INTO users (deviceid, displayname) VALUES (?, ?)";
-
-			PreparedStatement statement = Database.connection.prepareStatement(query);
-			statement.setString(1, request.deviceId);
-			statement.setString(2, processedDisplayName);
-
-			int queryResult = statement.executeUpdate();
-			if (queryResult != 1)
-			{
-				response.errorCode = 100;
-				return response;
-			}
-
-		} catch (SQLException e)
-		{
-			e.printStackTrace();
-
-			response.errorCode = 100;
-			return response;
-		}
 
 		response.errorCode = 0;
 		return response;

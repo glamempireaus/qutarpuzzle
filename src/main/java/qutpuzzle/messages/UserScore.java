@@ -4,5 +4,5 @@ public class UserScore
 {
 	public int placement;
 	public String displayName;
-	public String timeFinished;
+	public long timeFinished;
 }

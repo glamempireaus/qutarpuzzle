@@ -13,7 +13,7 @@
 </form>
 </body>
 <script>
- 	let jsonObj = {
+/*  	let jsonObj = {
 		    deviceId: "123"
 		};
 
@@ -21,7 +21,7 @@
 	let headers = {
 	    'Accept': 'application/json',
 	    'Content-Type': 'application/json'
-	}; 
+	};  */
 	
 /*  	let jsonObj = {
 		    deviceId: "123",
@@ -34,9 +34,9 @@
 	    'Content-Type': 'application/json'
 	};  */
 	
-/* 	let jsonObj = {
-		    deviceId: "123",
-		    displayName: "tester",
+/*  	let jsonObj = {
+		    deviceId: "1234",
+		    displayName: "tester2",
 		};
 	
 	let url = "http://localhost:8080/qutarpuzzle/addUser";
@@ -45,7 +45,27 @@
 	    'Content-Type': 'application/json'
 	}; */
 	
-	async function makePostRequest(url, requestType, headers){
+ 	let jsonObj = {
+		    deviceId: "123",
+		    trophyPosX: 342.23,
+		    trophyPosY: 44.523,
+		    trophyPosZ: 23,
+		    trophyType: 1
+		};
+	
+	let url = "http://localhost:8080/qutarpuzzle/addTrophy";
+	let headers = {
+	    'Accept': 'application/json',
+	    'Content-Type': 'application/json'
+	};
+	
+	async function makePostRequest(url, requestType, headers, fnc) {
+		
+		switch (fnc)
+		{
+		case: 
+		}
+		
 	    await fetch(
 	        url,
 	        {
