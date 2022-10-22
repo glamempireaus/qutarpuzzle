@@ -13,11 +13,14 @@
 </form>
 </body>
 <script>
+
+		let url
+
 /*  	let jsonObj = {
 		    deviceId: "123"
 		};
 
-	let url = "http://localhost:8080/qutarpuzzle/fetchScoreboard";
+	let url = "qutarpuzzle/fetchScoreboard";
 	let headers = {
 	    'Accept': 'application/json',
 	    'Content-Type': 'application/json'
@@ -28,7 +31,7 @@
 		    timeFinished: 1040,
 		};
 	
-	let url = "http://localhost:8080/qutarpuzzle/storeScore";
+	let url = "qutarpuzzle/storeScore";
 	let headers = {
 	    'Accept': 'application/json',
 	    'Content-Type': 'application/json'
@@ -39,7 +42,7 @@
 		    displayName: "tester2",
 		};
 	
-	let url = "http://localhost:8080/qutarpuzzle/addUser";
+	let url = "qutarpuzzle/addUser";
 	let headers = {
 	    'Accept': 'application/json',
 	    'Content-Type': 'application/json'
@@ -53,7 +56,7 @@
 		    trophyType: 1
 		};
 	
-	let url = "http://localhost:8080/qutarpuzzle/addTrophy";
+	let url = "qutarpuzzle/addTrophy";
 	let headers = {
 	    'Accept': 'application/json',
 	    'Content-Type': 'application/json'
