@@ -1,6 +1,6 @@
 package qutpuzzle.messages;
 
-public class StoreScoreResponse
+public class CheckUserExistsResponse
 {
 	public int errorCode;
 	public String errorMsg;

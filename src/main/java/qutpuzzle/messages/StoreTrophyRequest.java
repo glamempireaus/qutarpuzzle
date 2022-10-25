@@ -1,6 +1,6 @@
 package qutpuzzle.messages;
 
-public class AddTrophyRequest
+public class StoreTrophyRequest
 {
 	public String deviceId;
 	public double trophyPosX;

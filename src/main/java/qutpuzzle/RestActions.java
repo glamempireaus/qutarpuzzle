@@ -7,14 +7,16 @@ import java.sql.Time;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import qutpuzzle.messages.AddTrophyRequest;
-import qutpuzzle.messages.AddTrophyResponse;
+import qutpuzzle.messages.StoreTrophyRequest;
+import qutpuzzle.messages.StoreTrophyResponse;
 import qutpuzzle.messages.AddUserRequest;
 import qutpuzzle.messages.AddUserResponse;
+import qutpuzzle.messages.CheckUserExistsRequest;
+import qutpuzzle.messages.CheckUserExistsResponse;
 import qutpuzzle.messages.FetchScoreboardRequest;
 import qutpuzzle.messages.FetchScoreboardResponse;
-import qutpuzzle.messages.StoreScoreRequest;
-import qutpuzzle.messages.StoreScoreResponse;
+import qutpuzzle.messages.StoreFinishedTimeRequest;
+import qutpuzzle.messages.StoreFinishedTimeResponse;
 import qutpuzzle.messages.UserScore;
 
 public class RestActions
@@ -45,7 +47,49 @@ public class RestActions
 		return true;
 	}
 
-	public static AddUserResponse addUser(AddUserRequest request, HttpServletRequest httpServletRequest,
+	public static CheckUserExistsResponse checkUserExists(CheckUserExistsRequest request, HttpServletRequest httpServletRequest,
+			HttpServletResponse httpServletResponse)
+	{
+		CheckUserExistsResponse response = new CheckUserExistsResponse();
+
+		// deviceId check
+
+		if (request.deviceId.isEmpty() || request.deviceId == null)
+		{
+			response.errorCode = 1;
+			response.errorMsg = "Your deviceID is invalid.";
+			return response;
+		}
+
+		if (request.deviceId.length() > 256)
+		{
+			response.errorCode = 2;
+			response.errorMsg = "Your deviceID is an invalid length.";
+			return response;
+		}
+
+		String processedDeviceId = request.deviceId;
+
+		if (request.deviceId.length() > 256)
+		{
+			processedDeviceId = request.deviceId.substring(0, 256);
+		}
+
+		// check for duplicate deviceId
+
+		if (queryDeviceId(processedDeviceId))
+		{
+			response.errorCode = 1;
+			response.errorMsg = "This deviceID already exists.";
+			return response;
+		}
+
+		response.errorCode = 0;
+		return response;
+
+	}
+
+	public static AddUserResponse createUser(AddUserRequest request, HttpServletRequest httpServletRequest,
 			HttpServletResponse httpServletResponse)
 	{
 		AddUserResponse response = new AddUserResponse();
@@ -89,7 +133,7 @@ public class RestActions
 		if (queryDeviceId(processedDeviceId))
 		{
 			response.errorCode = 4;
-			response.errorMsg = "This display name is already in use.";
+			response.errorMsg = "This deviceid already exists.";
 			return response;
 		}
 
@@ -124,10 +168,10 @@ public class RestActions
 		return response;
 	}
 
-	public static StoreScoreResponse storeScore(StoreScoreRequest request, HttpServletRequest httpServletRequest,
+	public static StoreFinishedTimeResponse storeFinishedTime(StoreFinishedTimeRequest request, HttpServletRequest httpServletRequest,
 			HttpServletResponse httpServletResponse)
 	{
-		StoreScoreResponse response = new StoreScoreResponse();
+		StoreFinishedTimeResponse response = new StoreFinishedTimeResponse();
 
 		// deviceId check
 
@@ -203,10 +247,10 @@ public class RestActions
 		return response;
 	}
 
-	public static AddTrophyResponse addTrophy(AddTrophyRequest request, HttpServletRequest httpServletRequest,
+	public static StoreTrophyResponse storeTrophy(StoreTrophyRequest request, HttpServletRequest httpServletRequest,
 			HttpServletResponse httpServletResponse)
 	{
-		AddTrophyResponse response = new AddTrophyResponse();
+		StoreTrophyResponse response = new StoreTrophyResponse();
 
 		// deviceId check
 

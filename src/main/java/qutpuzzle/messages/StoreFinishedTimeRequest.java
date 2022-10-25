@@ -1,6 +1,6 @@
 package qutpuzzle.messages;
 
-public class StoreScoreRequest
+public class StoreFinishedTimeRequest
 {
 	public String deviceId;
 	public long timeFinished;

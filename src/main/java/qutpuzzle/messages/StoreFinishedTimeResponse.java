@@ -1,6 +1,6 @@
 package qutpuzzle.messages;
 
-public class AddTrophyResponse
+public class StoreFinishedTimeResponse
 {
 	public int errorCode;
 	public String errorMsg;

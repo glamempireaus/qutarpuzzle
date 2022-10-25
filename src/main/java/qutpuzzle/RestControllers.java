@@ -9,14 +9,16 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
-import qutpuzzle.messages.AddTrophyRequest;
-import qutpuzzle.messages.AddTrophyResponse;
 import qutpuzzle.messages.AddUserRequest;
 import qutpuzzle.messages.AddUserResponse;
+import qutpuzzle.messages.CheckUserExistsRequest;
+import qutpuzzle.messages.CheckUserExistsResponse;
 import qutpuzzle.messages.FetchScoreboardRequest;
 import qutpuzzle.messages.FetchScoreboardResponse;
-import qutpuzzle.messages.StoreScoreRequest;
-import qutpuzzle.messages.StoreScoreResponse;
+import qutpuzzle.messages.StoreFinishedTimeRequest;
+import qutpuzzle.messages.StoreFinishedTimeResponse;
+import qutpuzzle.messages.StoreTrophyRequest;
+import qutpuzzle.messages.StoreTrophyResponse;
 
 @Path("/")
 public class RestControllers
@@ -29,30 +31,39 @@ public class RestControllers
 	HttpServletResponse httpServletResponse;
 
 	@POST
-	@Path("/addUser")
+	@Path("/checkUserExists")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public AddUserResponse addUser(AddUserRequest request)
+	public CheckUserExistsResponse checkUserExists(CheckUserExistsRequest request)
 	{
-		return RestActions.addUser(request, httpServletRequest, httpServletResponse);
+		return RestActions.checkUserExists(request, httpServletRequest, httpServletResponse);
 	}
 
 	@POST
-	@Path("/storeScore")
+	@Path("/createUser")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public StoreScoreResponse storeScore(StoreScoreRequest request)
+	public AddUserResponse createUser(AddUserRequest request)
 	{
-		return RestActions.storeScore(request, httpServletRequest, httpServletResponse);
+		return RestActions.createUser(request, httpServletRequest, httpServletResponse);
 	}
 
 	@POST
-	@Path("/addTrophy")
+	@Path("/storeFinishedTime")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public AddTrophyResponse addTrophy(AddTrophyRequest request)
+	public StoreFinishedTimeResponse storeFinishedTime(StoreFinishedTimeRequest request)
 	{
-		return RestActions.addTrophy(request, httpServletRequest, httpServletResponse);
+		return RestActions.storeFinishedTime(request, httpServletRequest, httpServletResponse);
+	}
+
+	@POST
+	@Path("/storeTrophy")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public StoreTrophyResponse storeTrophy(StoreTrophyRequest request)
+	{
+		return RestActions.storeTrophy(request, httpServletRequest, httpServletResponse);
 	}
 
 	@POST
