@@ -179,7 +179,7 @@ public class RestActions
 			String query = "UPDATE users SET timefinished = ? WHERE deviceid = ?";
 
 			PreparedStatement statement = Database.connection.prepareStatement(query);
-			statement.setTime(1, new java.sql.Time(request.timeFinished));
+			statement.setLong(1, request.timeFinished);
 			statement.setString(2, processedDeviceId);
 
 			int queryResult = statement.executeUpdate();
@@ -244,11 +244,36 @@ public class RestActions
 
 		// check if there's a finished time
 
-		// add user
+		try
+		{
+			String query = "SELECT timefinished FROM users WHERE deviceid = ? AND timefinished IS NOT NULL";
+
+			PreparedStatement statement = Database.connection.prepareStatement(query);
+			statement.setString(1, processedDeviceId);
+
+			ResultSet resultSet = statement.executeQuery();
+
+			if (!resultSet.next())
+			{
+				response.errorCode = 4;
+				response.errorMsg = "There is no finishing time!";
+				return response;
+			}
+
+		} catch (SQLException e)
+		{
+			e.printStackTrace();
+
+			response.errorCode = 100;
+			response.errorMsg = "There was a problem with our backend.";
+			return response;
+		}
+
+		// add trophy data
 
 		try
 		{
-			String query = "UPDATE users SET trophyposx = ?, trophyposy = ?, trophyposz = ?, trophytype = ? WHERE deviceid = ? AND timefinished IS NOT NULL";
+			String query = "UPDATE users SET trophyposx = ?, trophyposy = ?, trophyposz = ?, trophytype = ? WHERE deviceid = ?";
 
 			PreparedStatement statement = Database.connection.prepareStatement(query);
 			statement.setDouble(1, request.trophyPosX);
