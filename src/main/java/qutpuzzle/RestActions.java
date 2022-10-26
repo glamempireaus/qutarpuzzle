@@ -7,16 +7,19 @@ import java.sql.Time;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import qutpuzzle.messages.StoreTrophyRequest;
-import qutpuzzle.messages.StoreTrophyResponse;
 import qutpuzzle.messages.AddUserRequest;
 import qutpuzzle.messages.AddUserResponse;
 import qutpuzzle.messages.CheckUserExistsRequest;
 import qutpuzzle.messages.CheckUserExistsResponse;
 import qutpuzzle.messages.FetchScoreboardRequest;
 import qutpuzzle.messages.FetchScoreboardResponse;
+import qutpuzzle.messages.FetchTrophiesRequest;
+import qutpuzzle.messages.FetchTrophiesResponse;
 import qutpuzzle.messages.StoreFinishedTimeRequest;
 import qutpuzzle.messages.StoreFinishedTimeResponse;
+import qutpuzzle.messages.StoreTrophyRequest;
+import qutpuzzle.messages.StoreTrophyResponse;
+import qutpuzzle.messages.Trophy;
 import qutpuzzle.messages.UserScore;
 
 public class RestActions
@@ -47,8 +50,8 @@ public class RestActions
 		return true;
 	}
 
-	public static CheckUserExistsResponse checkUserExists(CheckUserExistsRequest request, HttpServletRequest httpServletRequest,
-			HttpServletResponse httpServletResponse)
+	public static CheckUserExistsResponse checkUserExists(CheckUserExistsRequest request,
+			HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse)
 	{
 		CheckUserExistsResponse response = new CheckUserExistsResponse();
 
@@ -168,8 +171,8 @@ public class RestActions
 		return response;
 	}
 
-	public static StoreFinishedTimeResponse storeFinishedTime(StoreFinishedTimeRequest request, HttpServletRequest httpServletRequest,
-			HttpServletResponse httpServletResponse)
+	public static StoreFinishedTimeResponse storeFinishedTime(StoreFinishedTimeRequest request,
+			HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse)
 	{
 		StoreFinishedTimeResponse response = new StoreFinishedTimeResponse();
 
@@ -270,10 +273,16 @@ public class RestActions
 
 		// trophyType check
 
-		if (request.trophyType > 5)
+		int maxTrophyTop = 9;
+		int maxTrophyBottom = 10;
+		if (request.trophy.trophyTopModel > maxTrophyTop || request.trophy.trophyTopTexture > maxTrophyTop
+				|| request.trophy.trophyBottomModel > maxTrophyBottom
+				|| request.trophy.trophyBottomTexture > maxTrophyBottom || request.trophy.trophyTopModel < 0
+				|| request.trophy.trophyTopTexture < 0 || request.trophy.trophyTopModel < 0
+				|| request.trophy.trophyTopTexture < 0)
 		{
 			response.errorCode = 3;
-			response.errorMsg = "Trophy type is invalid.";
+			response.errorMsg = "Trophy model or texture types are invalid.";
 			return response;
 		}
 
@@ -317,13 +326,13 @@ public class RestActions
 
 		try
 		{
-			String query = "UPDATE users SET trophyposx = ?, trophyposy = ?, trophyposz = ?, trophytype = ? WHERE deviceid = ?";
+			String query = "UPDATE users SET trophytopmodel = ?, trophytoptexture = ?, trophybottommodel = ?, trophybottomtexture = ? WHERE deviceid = ?";
 
 			PreparedStatement statement = Database.connection.prepareStatement(query);
-			statement.setDouble(1, request.trophyPosX);
-			statement.setDouble(2, request.trophyPosY);
-			statement.setDouble(3, request.trophyPosZ);
-			statement.setInt(4, request.trophyType);
+			statement.setInt(1, request.trophy.trophyTopModel);
+			statement.setInt(2, request.trophy.trophyTopTexture);
+			statement.setInt(3, request.trophy.trophyBottomModel);
+			statement.setInt(4, request.trophy.trophyBottomTexture);
 			statement.setString(5, processedDeviceId);
 
 			int queryResult = statement.executeUpdate();
@@ -405,6 +414,85 @@ public class RestActions
 					placementIndex++;
 					userScore.timeFinished = resultSet.getInt(2);
 					response.scores.add(userScore);
+				} while (resultSet.next());
+			}
+
+		} catch (SQLException e)
+		{
+			e.printStackTrace();
+
+			response.errorCode = 100;
+			return response;
+		}
+
+		System.out.println(response.errorCode);
+
+		// authenticate user
+
+		response.errorCode = 0;
+		return response;
+	}
+
+	public static FetchTrophiesResponse fetchTrophies(FetchTrophiesRequest request,
+			HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse)
+	{
+		FetchTrophiesResponse response = new FetchTrophiesResponse();
+
+		// check if input is correct
+
+		if (request.deviceId.isEmpty() || request.deviceId == null)
+		{
+			response.errorCode = 1;
+			return response;
+		}
+
+		if (request.deviceId.length() > 256)
+		{
+			response.errorCode = 2;
+			return response;
+		}
+
+		String processedDeviceId = request.deviceId;
+
+		if (request.deviceId.length() > 256)
+		{
+			processedDeviceId = request.deviceId.substring(0, 256);
+		}
+
+		// check if deviceId is registered (to prevent anonymous api usage)
+
+		if (!queryDeviceId(processedDeviceId))
+		{
+			response.errorCode = 10;
+			return response;
+		}
+
+		// get trophies
+		try
+		{
+			String query = "SELECT displayName, timefinished, trophytopmodel, trophytoptexture, trophybottommodel, trophybottomtexture FROM users WHERE timefinished IS NOT NULL ORDER BY timefinished ASC LIMIT 40";
+
+			PreparedStatement statement = Database.connection.prepareStatement(query);
+
+			ResultSet resultSet = statement.executeQuery();
+
+			if (!resultSet.next())
+			{
+				response.errorCode = 3;
+				return response;
+			} else
+			{
+				do
+				{
+					Trophy trophy = new Trophy();
+					trophy.displayName = resultSet.getString(1);
+					trophy.timeFinished = resultSet.getLong(2);
+					trophy.trophyTopModel = resultSet.getInt(3);
+					trophy.trophyTopTexture = resultSet.getInt(4);
+					trophy.trophyBottomModel = resultSet.getInt(5);
+					trophy.trophyBottomTexture = resultSet.getInt(6);
+
+					response.trophies.add(trophy);
 				} while (resultSet.next());
 			}
 

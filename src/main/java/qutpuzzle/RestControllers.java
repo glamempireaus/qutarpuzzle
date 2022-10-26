@@ -15,6 +15,8 @@ import qutpuzzle.messages.CheckUserExistsRequest;
 import qutpuzzle.messages.CheckUserExistsResponse;
 import qutpuzzle.messages.FetchScoreboardRequest;
 import qutpuzzle.messages.FetchScoreboardResponse;
+import qutpuzzle.messages.FetchTrophiesRequest;
+import qutpuzzle.messages.FetchTrophiesResponse;
 import qutpuzzle.messages.StoreFinishedTimeRequest;
 import qutpuzzle.messages.StoreFinishedTimeResponse;
 import qutpuzzle.messages.StoreTrophyRequest;
@@ -73,5 +75,14 @@ public class RestControllers
 	public FetchScoreboardResponse fetchScoreboard(FetchScoreboardRequest request)
 	{
 		return RestActions.fetchScoreboard(request, httpServletRequest, httpServletResponse);
+	}
+
+	@POST
+	@Path("/fetchTrophies")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public FetchTrophiesResponse fetchTrophies(FetchTrophiesRequest request)
+	{
+		return RestActions.fetchTrophies(request, httpServletRequest, httpServletResponse);
 	}
 }
